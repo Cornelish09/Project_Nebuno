@@ -1,0 +1,17 @@
+{
+  "num_cols": [
+    "age",
+    "final_weight",
+    "educationnum",
+    "capital_gain",
+    "capital_loss",
+    "hours_per_week"
+  ],
+  "cat_cols": [
+    "workclass",
+    "marital_status",
+    "occupation",
+    "relationship",
+    "race"
+  ]
+}
