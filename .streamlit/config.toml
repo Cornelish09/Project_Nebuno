@@ -1,0 +1,6 @@
+[theme]
+base = "dark"
+primaryColor = "#FF4FA3"            # pink
+backgroundColor = "#0E1117"         # hitam kebiruan
+secondaryBackgroundColor = "#161B22" # panel
+textColor = "#FFFFFF"               # teks
