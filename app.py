@@ -1,17 +1,34 @@
-import streamlit as st, pandas as pd, numpy as np, joblib, json
+import streamlit as st, pandas as pd, numpy as np, joblib, json, requests
 from pathlib import Path
 
 st.set_page_config(page_title="Income Prediction (Notebook-style, Scaled)", page_icon="💼")
 
+BASE = Path(__file__).resolve().parent
+MODEL_DIR = BASE / "models"
+MODEL_PATH = MODEL_DIR / "manual_model.joblib"
+RELEASE_URL = "https://github.com/Cornelish09/Project_Nebuno/releases/download/v1/manual_model.joblib"
+
 @st.cache_resource
 def load_artifacts():
-    model = joblib.load(Path("models/manual_model.joblib"))
-    with open(Path("artifacts/columns.json"), "r", encoding="utf-8") as f:
-        trained_cols = json.load(f)
-    with open(Path("artifacts/schema.json"), "r", encoding="utf-8") as f:
-        schema = json.load(f)
-    scaler = joblib.load(Path("artifacts/scaler.joblib"))  # load scaler hasil training
+    # Unduh model sekali (saat cold start), lalu cache
+    MODEL_DIR.mkdir(exist_ok=True)
+    if not MODEL_PATH.exists():
+        with requests.get(RELEASE_URL, stream=True, timeout=60) as r:
+            r.raise_for_status()
+            with open(MODEL_PATH, "wb") as f:
+                for chunk in r.iter_content(1024 * 1024):  # 1 MB
+                    if chunk:
+                        f.write(chunk)
+
+    model = joblib.load(MODEL_PATH)
+
+    # baca artifacts lain dari repo (pastikan file2 ini ada)
+    trained_cols = json.loads((BASE / "artifacts" / "columns.json").read_text(encoding="utf-8"))
+    schema       = json.loads((BASE / "artifacts" / "schema.json").read_text(encoding="utf-8"))
+    scaler       = joblib.load(BASE / "artifacts" / "scaler.joblib")
+
     return model, trained_cols, schema, scaler
+
 
 model, trained_cols, schema, scaler = load_artifacts()
 num_cols, cat_cols = schema["num_cols"], schema["cat_cols"]
@@ -95,4 +112,5 @@ if submitted:
     label = ">50K" if y == 1 else "<=50K"
     st.success(f"Prediksi: {label}")
     if proba is not None:
+
         st.write(f"Prob >50K: {proba:.3f}")
