@@ -127,13 +127,15 @@ if submitted:
     y = model.predict(X_dum)[0]
     proba = model.predict_proba(X_dum)[0][1] if hasattr(model, "predict_proba") else None
     label = ">50K" if y == 1 else "<=50K"
-t1, t2 = st.tabs(["Result", "Details"])
-with t1:
-    st.success(f"Prediksi: {label}")
-    if proba is not None:
-        st.write(f"Prob >50K: {proba:.3f}")
-with t2:
-    st.write("**Numerical features (scaled):**")
-    st.dataframe(X[num_cols], use_container_width=True)
+    t1, t2 = st.tabs(["Result", "Details"])
+    with t1:
+        st.success(f"Prediksi: {label}")
+        if proba is not None:
+            st.write(f"Prob >50K: {proba:.3f}")
+    with t2:
+        st.write("**Numerical features (scaled):**")
+        st.dataframe(X[num_cols], use_container_width=True)
+else:
+    st.info("Isi form lalu klik Predict.")
 
 
